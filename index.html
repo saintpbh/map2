@@ -1,170 +1,335 @@
+<!-- 선교사 지도 및 기도제목 팝업 전체 HTML -->
+
 <!DOCTYPE html>
+
 <html lang="ko">
+
 <head>
+
   <meta charset="UTF-8">
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>한국기독교장로회 해외 선교동역자 지도</title>
-  <!-- Leaflet 기본 스타일 시트 불러오기 -->
+
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
   <style>
+
     body { margin: 0; font-family: sans-serif; }
+
     h1 { text-align: center; padding: 10px; }
 
-    /* 📌 지도 전체 크기 설정: 높이는 화면 높이의 80%, 너비는 전체 화면 너비로 지정 */
-    #map { height: 40vh; width: 100vw; }
+    #map { height: 100vh; width: 100vw; }
 
-    /* 상세 팝업창 스타일 */
+
+
     .detail-popup {
-      position: fixed;
-      background: #fff;
-      border: 1px solid #ccc;
-      padding: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
-      z-index: 999;
-      display: none;
-      width: 300px;
+
+      position: fixed; background: #fff; border: 1px solid #ccc;
+
+      padding: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.3);
+
+      z-index: 999; display: none; width: 300px;
+
     }
+
     .detail-popup h3 { margin-top: 0; }
+
     .detail-popup img { width: 100%; border-radius: 8px; margin-bottom: 10px; }
+
     .close-btn {
-      float: right;
-      cursor: pointer;
-      color: red;
-      font-weight: bold;
+
+      float: right; cursor: pointer; color: red; font-weight: bold;
+
     }
+
     .flag-icon { width: 20px; height: 15px; vertical-align: middle; margin-right: 5px; }
+
     .popup-list:hover { cursor: pointer; color: blue; text-decoration: underline; }
+
+
+
+    .floating-missionary {
+
+      position: absolute; background: rgba(255,255,255,0.95);
+
+      border: 1px solid #ccc; border-radius: 8px; padding: 8px;
+
+      font-size: 13px; z-index: 500; box-shadow: 0 0 8px rgba(0,0,0,0.2);
+
+      display: flex; align-items: center; gap: 6px;
+
+    }
+
+    .floating-missionary img {
+
+      width: 24px; height: 24px; border-radius: 50%;
+
+    }
+
   </style>
+
 </head>
+
 <body>
+
   <h1>한국기독교장로회 해외 선교동역자 지도</h1>
+
   <div id="map"></div>
+
   <div id="detailPopup" class="detail-popup"></div>
 
-  <!-- Leaflet 스크립트 불러오기 -->
+
+
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
   <script>
-    // ISO 2-letter 국가 코드에 대응하는 국기 URL 코드 매핑
-    const countryFlags = {
-      "일본": "jp", "중국": "cn", "대만": "tw", "몽골": "mn", "필리핀": "ph",
-      "미얀마": "mm", "태국": "th", "캄보디아": "kh", "네팔": "np", "라오스": "la",
-      "인도": "in", "인도네시아": "id", "파키스탄": "pk", "동티모르": "tl", "말레이시아": "my",
-      "뉴질랜드": "nz", "호주": "au", "이스라엘": "il", "독일": "de", "헝가리": "hu",
-      "불가리아": "bg", "부르키나파소": "bf", "케냐": "ke", "모리타니": "mr",
-      "미국": "us", "쿠바": "cu"
+
+    const FLOAT_INTERVAL = 700; // 기도제목 팝업 간격(ms)
+
+    const FLOAT_COUNT = 0.5;       // 동시에 표시할 선교사 수
+
+
+
+    const missionaryData = {
+
+      "일본": ["가정순", "김종현", "정지영", "신용섭", "김성언", "오은성"],
+
+      "중국": ["양OO"], "대만": ["김기태", "이강석", "조하영", "박근영"],
+
+      "몽골": ["김상헌"], "필리핀": ["이성수", "김현숙", "금석인", "강경진", "방태화", "김영권"],
+
+      "미얀마": ["김경환"], "태국": ["김완주", "김기성", "이재광", "명승인", "박준수"],
+
+      "캄보디아": ["김형기", "김관식", "이민일", "황하얀", "황희명", "김경희", "진재은"],
+
+      "네팔": ["최양임", "윤종수", "허현", "이수열", "김종찬"],
+
+      "라오스": ["차명렬", "정병권"], "인도": ["김금애", "이옥희", "정호진", "김경미", "이화랑", "이도형"],
+
+      "인도네시아": ["김광훈", "권동용", "설나라", "박준호"], "파키스탄": ["김신미"],
+
+      "동티모르": ["김옥겸"], "말레이시아": ["김재선"], "뉴질랜드": ["류숙"],
+
+      "호주": ["최범욱", "이병관"], "이스라엘": ["김정환", "안상근"],
+
+      "독일": ["김동욱", "정광은", "조성호", "김기천", "강민영"],
+
+      "헝가리": ["김선구", "김다솜", "최종관"], "불가리아": ["김영중"],
+
+      "부르키나파소": ["윤영국"], "케냐": ["최성욱"], "모리타니": ["심재원"],
+
+      "미국": ["장호준"], "쿠바": ["임순심"]
+
     };
 
-    // 지도 객체 생성 및 초기 위치 설정 (세계 중심 좌표)
+
+
+    const countryFlags = {
+
+      "일본": "jp", "중국": "cn", "대만": "tw", "몽골": "mn", "필리핀": "ph",
+
+      "미얀마": "mm", "태국": "th", "캄보디아": "kh", "네팔": "np", "라오스": "la",
+
+      "인도": "in", "인도네시아": "id", "파키스탄": "pk", "동티모르": "tl", "말레이시아": "my",
+
+      "뉴질랜드": "nz", "호주": "au", "이스라엘": "il", "독일": "de", "헝가리": "hu",
+
+      "불가리아": "bg", "부르키나파소": "bf", "케냐": "ke", "모리타니": "mr",
+
+      "미국": "us", "쿠바": "cu"
+
+    };
+
+
+
+    const latlngs = {
+
+      "일본": [36.2048, 138.2529], "중국": [35.8617, 104.1954], "대만": [23.6978, 120.9605], "몽골": [46.8625, 103.8467],
+
+      "필리핀": [12.8797, 121.7740], "미얀마": [21.9162, 95.9560], "태국": [15.8700, 100.9925], "캄보디아": [12.5657, 104.9910],
+
+      "네팔": [28.3949, 84.1240], "라오스": [19.8563, 102.4955], "인도": [20.5937, 78.9629], "인도네시아": [-0.7893, 113.9213],
+
+      "파키스탄": [30.3753, 69.3451], "동티모르": [-8.8742, 125.7275], "말레이시아": [4.2105, 101.9758],
+
+      "뉴질랜드": [-40.9006, 174.8860], "호주": [-25.2744, 133.7751], "이스라엘": [31.0461, 34.8516],
+
+      "독일": [51.1657, 10.4515], "헝가리": [47.1625, 19.5033], "불가리아": [42.7339, 25.4858],
+
+      "부르키나파소": [12.2383, -1.5616], "케냐": [-0.0236, 37.9062], "모리타니": [21.0079, -10.9408],
+
+      "미국": [37.0902, -95.7129], "쿠바": [21.5218, -77.7812]
+
+    };
+
+
+
+    const countryIcons = Object.fromEntries(Object.keys(latlngs).map(c => [c, "https://cdn-icons-png.flaticon.com/128/149/149071.png"]));
+
+    const prayerSamples = ["영적 성장", "건강과 안전", "현지 언어 습득", "교회건축기금", "복음의 열매", "가족의 평안"];
+
+
+
+
+
+
+
+
+
+    
+
     const map = L.map('map').setView([20, 0], 2);
-    // 타일 레이어 추가 (오픈스트리트맵)
+
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+
       attribution: '© OpenStreetMap'
+
     }).addTo(map);
 
-    // 선교사 데이터 (국가별 이름 배열)
-    const missionaryData = {
-      "일본": ["가정순", "김종현", "정지영", "신용섭", "김성언", "오은성"],
-      "중국": ["양OO"], "대만": ["김기태", "이강석", "조하영", "박근영"],
-      "몽골": ["김상헌"], "필리핀": ["이성수", "김현숙", "금석인", "강경진", "방태화", "김영권"],
-      "미얀마": ["김경환"], "태국": ["김완주", "김기성", "이재광", "명승인", "박준수"],
-      "캄보디아": ["김형기", "김관식", "이민일", "황하얀", "황희명", "김경희", "진재은"],
-      "네팔": ["최양임", "윤종수", "허현", "이수열", "김종찬"],
-      "라오스": ["차명렬", "정병권"], "인도": ["김금애", "이옥희", "정호진", "김경미", "이화랑", "이도형"],
-      "인도네시아": ["김광훈", "권동용", "설나라", "박준호"], "파키스탄": ["김신미"],
-      "동티모르": ["김옥겸"], "말레이시아": ["김재선"], "뉴질랜드": ["류숙"],
-      "호주": ["최범욱", "이병관"], "이스라엘": ["김정환", "안상근"],
-      "독일": ["김동욱", "정광은", "조성호", "김기천", "강민영"],
-      "헝가리": ["김선구", "김다솜", "최종관"], "불가리아": ["김영중"],
-      "부르키나파소": ["윤영국"], "케냐": ["최성욱"], "모리타니": ["심재원"],
-      "미국": ["장호준"], "쿠바": ["임순심"]
-    };
 
-    // 국가별 위도/경도 정보
-    const latlngs = {
-      "일본": [36.2048, 138.2529], "중국": [35.8617, 104.1954], "대만": [23.6978, 120.9605], "몽골": [46.8625, 103.8467],
-      "필리핀": [12.8797, 121.7740], "미얀마": [21.9162, 95.9560], "태국": [15.8700, 100.9925], "캄보디아": [12.5657, 104.9910],
-      "네팔": [28.3949, 84.1240], "라오스": [19.8563, 102.4955], "인도": [20.5937, 78.9629], "인도네시아": [-0.7893, 113.9213],
-      "파키스탄": [30.3753, 69.3451], "동티모르": [-8.8742, 125.7275], "말레이시아": [4.2105, 101.9758],
-      "뉴질랜드": [-40.9006, 174.8860], "호주": [-25.2744, 133.7751], "이스라엘": [31.0461, 34.8516],
-      "독일": [51.1657, 10.4515], "헝가리": [47.1625, 19.5033], "불가리아": [42.7339, 25.4858],
-      "부르키나파소": [12.2383, -1.5616], "케냐": [-0.0236, 37.9062], "모리타니": [21.0079, -10.9408],
-      "미국": [37.0902, -95.7129], "쿠바": [21.5218, -77.7812]
-    };
 
     const detailPopup = document.getElementById('detailPopup');
 
-    // 선교사 상세 정보 팝업 표시 함수
     function showDetail(name, latlng) {
-      const point = map.latLngToContainerPoint(latlng);
-      const windowWidth = window.innerWidth;
-      const windowHeight = window.innerHeight;
 
-      let left = point.x + 20;
-      let top = point.y - 20;
-
-      // 화면 중앙 70% 이내로 팝업 위치 보정
-      if (left < windowWidth * 0.15) left = windowWidth * 0.15;
-      if (left > windowWidth * 0.85 - 300) left = windowWidth * 0.85 - 300;
-      if (top < windowHeight * 0.15) top = windowHeight * 0.15;
-      if (top > windowHeight * 0.85 - 200) top = windowHeight * 0.85 - 200;
-
-      detailPopup.style.left = `${left}px`;
-      detailPopup.style.top = `${top}px`;
-      detailPopup.innerHTML = `
-        <div class="close-btn" onclick="closeDetail()">✖</div>
-        <img src="https://via.placeholder.com/300x180.png?text=${name}" alt="${name}">
-        <h3>${name}</h3>
-        <p><strong>파송년도:</strong> 2020년</p>
-        <p><strong>주요사역:</strong> 교육, 복음전도</p>
-        <p><strong>기도제목:</strong> 현지 정착과 건강</p>
-      `;
       detailPopup.style.display = 'block';
 
-      // 지도 이동: 중앙 70% 이내로 선교사 위치 보정하여 이동
-      const bounds = map.getBounds();
-      const paddingLat = (bounds.getNorth() - bounds.getSouth()) * 0.15;
-      const paddingLng = (bounds.getEast() - bounds.getWest()) * 0.15;
-      const adjustedLat = Math.min(Math.max(latlng[0], bounds.getSouth() + paddingLat), bounds.getNorth() - paddingLat);
-      const adjustedLng = Math.min(Math.max(latlng[1], bounds.getWest() + paddingLng), bounds.getEast() - paddingLng);
-      map.panTo([adjustedLat, adjustedLng]);
+      detailPopup.style.left = '20px';
+
+      detailPopup.style.top = '20px';
+
+      detailPopup.innerHTML = `<div class="close-btn" onclick="closeDetail()">✖</div>
+
+        <img src="https://via.placeholder.com/300x180.png?text=${name}" alt="${name}">
+
+        <h3>${name}</h3>
+
+        <p><strong>파송년도:</strong> 2020년</p>
+
+        <p><strong>주요사역:</strong> 교육, 복음전도</p>
+
+        <p><strong>기도제목:</strong> 현지 정착과 건강</p>`;
+
     }
 
-    // 상세 팝업 닫기 함수
-    function closeDetail() {
-      detailPopup.style.display = 'none';
-    }
+    function closeDetail() { detailPopup.style.display = 'none'; }
 
-    // 마커 및 팝업 생성
+
+
     const markers = Object.entries(missionaryData).map(([country, missionaries]) => {
+
       const [lat, lng] = latlngs[country] || [0, 0];
+
       const flag = countryFlags[country] ? `<img class='flag-icon' src='https://flagcdn.com/w40/${countryFlags[country]}.png'>` : "";
+
       const popupContent = `${flag}<b>${country}</b><br>` +
+
         missionaries.map(name => `<div class='popup-list' onclick='showDetail(\"${name}\", [${lat}, ${lng}])'>${name}</div>`).join("");
+
       const marker = L.marker([lat, lng]).addTo(map);
+
       marker.bindPopup(popupContent);
+
       return marker;
+
     });
 
-    // 순환 팝업 로직
-    let currentIndex = 0;
-    let pause = false;
+
+
+    let currentIndex = 0, pause = false;
 
     document.addEventListener("mouseover", e => {
+
       if (e.target.closest(".leaflet-popup") || e.target.closest(".popup-list")) pause = true;
+
     });
+
     document.addEventListener("mouseout", e => {
+
       if (!e.relatedTarget || (!e.relatedTarget.closest(".leaflet-popup") && !e.relatedTarget.closest(".popup-list"))) pause = false;
+
     });
 
-    // 3초마다 순차적으로 마커 팝업 표시
     setInterval(() => {
-      if (!pause) {
-        markers.forEach(m => m.closePopup());
-        markers[currentIndex].openPopup();
-        currentIndex = (currentIndex + 1) % markers.length;
-      }
-    }, 3000);
-  </script>
-</body>
-</html>
 
+      if (!pause) {
+
+        markers.forEach(m => m.closePopup());
+
+        markers[currentIndex].openPopup();
+
+        currentIndex = (currentIndex + 1) % markers.length;
+
+      }
+
+    }, 3000);
+
+
+
+    let floatingIndex = 0;
+
+    const flatMissionaries = Object.entries(missionaryData).flatMap(([country, names]) =>
+
+      names.map(name => ({ country, name }))
+
+    ).filter(Boolean);
+
+
+
+    function showFloatingMissionary() {
+
+      for (let i = 0; i < FLOAT_COUNT; i++) {
+
+        const item = flatMissionaries[(floatingIndex + i) % flatMissionaries.length];
+
+        if (!item) continue;
+
+        const { country, name } = item;
+
+        const [lat, lng] = latlngs[country] || [0, 0];
+
+        const iconUrl = countryIcons[country];
+
+        const prayer = prayerSamples[Math.floor(Math.random() * prayerSamples.length)];
+
+
+
+        const div = document.createElement("div");
+
+        div.className = "floating-missionary";
+
+        div.innerHTML = `<img src="${iconUrl}" alt="icon"><b>${name}</b><span>${prayer}</span>`;
+
+        const point = map.latLngToContainerPoint([
+
+          lat + (Math.random() - 0.5) * 3,
+
+          lng + (Math.random() - 0.5) * 3
+
+        ]);
+
+        div.style.left = `${point.x}px`;
+
+        div.style.top = `${point.y}px`;
+
+        document.body.appendChild(div);
+
+        setTimeout(() => div.remove(), FLOAT_INTERVAL * 2);
+
+      }
+
+      floatingIndex = (floatingIndex + FLOAT_COUNT) % flatMissionaries.length;
+
+    }
+
+
+
+    setInterval(showFloatingMissionary, FLOAT_INTERVAL);
+
+  </script>
+
+</body>
+
+</html>
