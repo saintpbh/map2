@@ -1,158 +1,170 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="ko">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2487.4">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>세계 기장선교사 파송 지도</title>
+  <!-- Leaflet 기본 스타일 시트 불러오기 -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body { margin: 0; font-family: sans-serif; }
+    h1 { text-align: center; padding: 10px; }
+
+    /* 📌 지도 전체 크기 설정: 높이는 화면 높이의 80%, 너비는 전체 화면 너비로 지정 */
+    #map { height: 40vh; width: 100vw; }
+
+    /* 상세 팝업창 스타일 */
+    .detail-popup {
+      position: fixed;
+      background: #fff;
+      border: 1px solid #ccc;
+      padding: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      z-index: 999;
+      display: none;
+      width: 300px;
+    }
+    .detail-popup h3 { margin-top: 0; }
+    .detail-popup img { width: 100%; border-radius: 8px; margin-bottom: 10px; }
+    .close-btn {
+      float: right;
+      cursor: pointer;
+      color: red;
+      font-weight: bold;
+    }
+    .flag-icon { width: 20px; height: 15px; vertical-align: middle; margin-right: 5px; }
+    .popup-list:hover { cursor: pointer; color: blue; text-decoration: underline; }
   </style>
 </head>
 <body>
-<p class="p1">&lt;!DOCTYPE html&gt;</p>
-<p class="p1">&lt;html lang="ko"&gt;</p>
-<p class="p1">&lt;head&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta charset="UTF-8"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;title&gt;세계 기장선교사 파송 지도&lt;/title&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;style&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>body { margin: 0; font-family: sans-serif; }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>h1 { text-align: center; padding: 10px; }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>#map { height: 90vh; width: 100vw; }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.detail-popup {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>position: fixed;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>top: 10%;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>right: 10px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>width: 300px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: #fff;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border: 1px solid #ccc;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 10px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>box-shadow: 0 0 10px rgba(0,0,0,0.3);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>z-index: 999;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: none;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.detail-popup h3 { margin-top: 0; }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.detail-popup img { width: 100%; border-radius: 8px; margin-bottom: 10px; }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.close-btn {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>float: right;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>cursor: pointer;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: red;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-weight: bold;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.flag-icon { width: 20px; height: 15px; vertical-align: middle; margin-right: 5px; }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.popup-list:hover { cursor: pointer; color: blue; text-decoration: underline; }</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/style&gt;</p>
-<p class="p1">&lt;/head&gt;</p>
-<p class="p1">&lt;body&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;h1&gt;세계 기장선교사 파송 지도&lt;/h1&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;div id="map"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;div id="detailPopup" class="detail-popup"&gt;&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;script src="https://unpkg.com/leaflet/dist/leaflet.js"&gt;&lt;/script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const countryFlags = {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"일본": "jp", "중국": "cn", "대만": "tw", "몽골": "mn", "필리핀": "ph",</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"미얀마": "mm", "태국": "th", "캄보디아": "kh", "네팔": "np", "라오스": "la",</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"인도": "in", "인도네시아": "id", "파키스탄": "pk", "동티모르": "tl", "말레이시아": "my",</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"뉴질랜드": "nz", "호주": "au", "이스라엘": "il", "독일": "de", "헝가리": "hu",</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"불가리아": "bg", "부르키나파소": "bf", "케냐": "ke", "모리타니": "mr",</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"미국": "us", "쿠바": "cu"</p>
-<p class="p1"><span class="Apple-converted-space">    </span>};</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>const map = L.map('map').setView([20, 0], 2);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>const missionaryData = {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"일본": ["가정순", "김종현", "정지영", "신용섭", "김성언", "오은성"],</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"중국": ["양OO"],</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"대만": ["김기태", "이강석", "조하영", "박근영"],</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"몽골": ["김상헌"],</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"필리핀": ["이성수", "김현숙", "금석인", "강경진", "방태화", "김영권"],</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"미얀마": ["김경환"],</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"태국": ["김완주", "김기성", "이재광", "명승인", "박준수"],</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"캄보디아": ["김형기", "김관식", "이민일", "황하얀", "황희명", "김경희", "진재은"],</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"네팔": ["최양임", "윤종수", "허현", "이수열", "김종찬"],</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"라오스": ["차명렬", "정병권"],</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"인도": ["김금애", "이옥희", "정호진", "김경미", "이화랑", "이도형"],</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"인도네시아": ["김광훈", "권동용", "설나라", "박준호"],</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"파키스탄": ["김신미"],</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"동티모르": ["김옥겸"],</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"말레이시아": ["김재선"],</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"뉴질랜드": ["류숙"],</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"호주": ["최범욱", "이병관"],</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"이스라엘": ["김정환", "안상근"],</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"독일": ["김동욱", "정광은", "조성호", "김기천", "강민영"],</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"헝가리": ["김선구", "김다솜", "최종관"],</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"불가리아": ["김영중"],</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"부르키나파소": ["윤영국"],</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"케냐": ["최성욱"],</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"모리타니": ["심재원"],</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"미국": ["장호준"],</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"쿠바": ["임순심"]</p>
-<p class="p1"><span class="Apple-converted-space">    </span>};</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>const latlngs = {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"일본": [36.2048, 138.2529], "중국": [35.8617, 104.1954], "대만": [23.6978, 120.9605], "몽골": [46.8625, 103.8467],</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"필리핀": [12.8797, 121.7740], "미얀마": [21.9162, 95.9560], "태국": [15.8700, 100.9925], "캄보디아": [12.5657, 104.9910],</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"네팔": [28.3949, 84.1240], "라오스": [19.8563, 102.4955], "인도": [20.5937, 78.9629], "인도네시아": [-0.7893, 113.9213],</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"파키스탄": [30.3753, 69.3451], "동티모르": [-8.8742, 125.7275], "말레이시아": [4.2105, 101.9758],</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"뉴질랜드": [-40.9006, 174.8860], "호주": [-25.2744, 133.7751], "이스라엘": [31.0461, 34.8516],</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"독일": [51.1657, 10.4515], "헝가리": [47.1625, 19.5033], "불가리아": [42.7339, 25.4858],</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"부르키나파소": [12.2383, -1.5616], "케냐": [-0.0236, 37.9062], "모리타니": [21.0079, -10.9408],</p>
-<p class="p1"><span class="Apple-converted-space">      </span>"미국": [37.0902, -95.7129], "쿠바": [21.5218, -77.7812]</p>
-<p class="p1"><span class="Apple-converted-space">    </span>};</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>const detailPopup = document.getElementById('detailPopup');</p>
-<p class="p1"><span class="Apple-converted-space">    </span>function showDetail(name) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>detailPopup.innerHTML = `</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="close-btn" onclick="closeDetail()"&gt;✖&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;img src="https://via.placeholder.com/300x180.png?text=${name}" alt="${name}"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;h3&gt;${name}&lt;/h3&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;p&gt;&lt;strong&gt;파송년도:&lt;/strong&gt; 2020년&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;p&gt;&lt;strong&gt;주요사역:&lt;/strong&gt; 교육, 복음전도&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;p&gt;&lt;strong&gt;기도제목:&lt;/strong&gt; 현지 정착과 건강&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>`;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>detailPopup.style.display = 'block';</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>function closeDetail() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>detailPopup.style.display = 'none';</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>const markers = Object.entries(missionaryData).map(([country, missionaries]) =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const [lat, lng] = latlngs[country] || [0, 0];</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const flag = countryFlags[country] ? `&lt;img class='flag-icon' src='https://flagcdn.com/w40/${countryFlags[country]}.png'&gt;` : "";</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const popupContent = `${flag}&lt;b&gt;${country}&lt;/b&gt;&lt;br&gt;` +</p>
-<p class="p1"><span class="Apple-converted-space">        </span>missionaries.map(name =&gt; `&lt;div class='popup-list' onclick='showDetail("${name}")'&gt;${name}&lt;/div&gt;`).join("");</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const marker = L.marker([lat, lng]).addTo(map);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>marker.bindPopup(popupContent);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>marker.on("popupopen", () =&gt; pause = false);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>marker.on("popupclose", () =&gt; pause = false);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>return marker;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>});</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>let currentIndex = 0;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>let pause = false;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>document.addEventListener("mouseover", e =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (e.target.closest(".leaflet-popup")) pause = true;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>});</p>
-<p class="p1"><span class="Apple-converted-space">    </span>document.addEventListener("mouseout", e =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (!e.relatedTarget || !e.relatedTarget.closest(".leaflet-popup")) pause = false;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>});</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>setInterval(() =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (!pause) {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>markers.forEach(m =&gt; m.closePopup());</p>
-<p class="p1"><span class="Apple-converted-space">        </span>markers[currentIndex].openPopup();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>currentIndex = (currentIndex + 1) % markers.length;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}, 3000);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/script&gt;</p>
-<p class="p1">&lt;/body&gt;</p>
-<p class="p1">&lt;/html&gt;</p>
+  <h1>세계 기장선교사 파송 지도</h1>
+  <div id="map"></div>
+  <div id="detailPopup" class="detail-popup"></div>
+
+  <!-- Leaflet 스크립트 불러오기 -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // ISO 2-letter 국가 코드에 대응하는 국기 URL 코드 매핑
+    const countryFlags = {
+      "일본": "jp", "중국": "cn", "대만": "tw", "몽골": "mn", "필리핀": "ph",
+      "미얀마": "mm", "태국": "th", "캄보디아": "kh", "네팔": "np", "라오스": "la",
+      "인도": "in", "인도네시아": "id", "파키스탄": "pk", "동티모르": "tl", "말레이시아": "my",
+      "뉴질랜드": "nz", "호주": "au", "이스라엘": "il", "독일": "de", "헝가리": "hu",
+      "불가리아": "bg", "부르키나파소": "bf", "케냐": "ke", "모리타니": "mr",
+      "미국": "us", "쿠바": "cu"
+    };
+
+    // 지도 객체 생성 및 초기 위치 설정 (세계 중심 좌표)
+    const map = L.map('map').setView([20, 0], 2);
+    // 타일 레이어 추가 (오픈스트리트맵)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    // 선교사 데이터 (국가별 이름 배열)
+    const missionaryData = {
+      "일본": ["가정순", "김종현", "정지영", "신용섭", "김성언", "오은성"],
+      "중국": ["양OO"], "대만": ["김기태", "이강석", "조하영", "박근영"],
+      "몽골": ["김상헌"], "필리핀": ["이성수", "김현숙", "금석인", "강경진", "방태화", "김영권"],
+      "미얀마": ["김경환"], "태국": ["김완주", "김기성", "이재광", "명승인", "박준수"],
+      "캄보디아": ["김형기", "김관식", "이민일", "황하얀", "황희명", "김경희", "진재은"],
+      "네팔": ["최양임", "윤종수", "허현", "이수열", "김종찬"],
+      "라오스": ["차명렬", "정병권"], "인도": ["김금애", "이옥희", "정호진", "김경미", "이화랑", "이도형"],
+      "인도네시아": ["김광훈", "권동용", "설나라", "박준호"], "파키스탄": ["김신미"],
+      "동티모르": ["김옥겸"], "말레이시아": ["김재선"], "뉴질랜드": ["류숙"],
+      "호주": ["최범욱", "이병관"], "이스라엘": ["김정환", "안상근"],
+      "독일": ["김동욱", "정광은", "조성호", "김기천", "강민영"],
+      "헝가리": ["김선구", "김다솜", "최종관"], "불가리아": ["김영중"],
+      "부르키나파소": ["윤영국"], "케냐": ["최성욱"], "모리타니": ["심재원"],
+      "미국": ["장호준"], "쿠바": ["임순심"]
+    };
+
+    // 국가별 위도/경도 정보
+    const latlngs = {
+      "일본": [36.2048, 138.2529], "중국": [35.8617, 104.1954], "대만": [23.6978, 120.9605], "몽골": [46.8625, 103.8467],
+      "필리핀": [12.8797, 121.7740], "미얀마": [21.9162, 95.9560], "태국": [15.8700, 100.9925], "캄보디아": [12.5657, 104.9910],
+      "네팔": [28.3949, 84.1240], "라오스": [19.8563, 102.4955], "인도": [20.5937, 78.9629], "인도네시아": [-0.7893, 113.9213],
+      "파키스탄": [30.3753, 69.3451], "동티모르": [-8.8742, 125.7275], "말레이시아": [4.2105, 101.9758],
+      "뉴질랜드": [-40.9006, 174.8860], "호주": [-25.2744, 133.7751], "이스라엘": [31.0461, 34.8516],
+      "독일": [51.1657, 10.4515], "헝가리": [47.1625, 19.5033], "불가리아": [42.7339, 25.4858],
+      "부르키나파소": [12.2383, -1.5616], "케냐": [-0.0236, 37.9062], "모리타니": [21.0079, -10.9408],
+      "미국": [37.0902, -95.7129], "쿠바": [21.5218, -77.7812]
+    };
+
+    const detailPopup = document.getElementById('detailPopup');
+
+    // 선교사 상세 정보 팝업 표시 함수
+    function showDetail(name, latlng) {
+      const point = map.latLngToContainerPoint(latlng);
+      const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
+
+      let left = point.x + 20;
+      let top = point.y - 20;
+
+      // 화면 중앙 70% 이내로 팝업 위치 보정
+      if (left < windowWidth * 0.15) left = windowWidth * 0.15;
+      if (left > windowWidth * 0.85 - 300) left = windowWidth * 0.85 - 300;
+      if (top < windowHeight * 0.15) top = windowHeight * 0.15;
+      if (top > windowHeight * 0.85 - 200) top = windowHeight * 0.85 - 200;
+
+      detailPopup.style.left = `${left}px`;
+      detailPopup.style.top = `${top}px`;
+      detailPopup.innerHTML = `
+        <div class="close-btn" onclick="closeDetail()">✖</div>
+        <img src="https://via.placeholder.com/300x180.png?text=${name}" alt="${name}">
+        <h3>${name}</h3>
+        <p><strong>파송년도:</strong> 2020년</p>
+        <p><strong>주요사역:</strong> 교육, 복음전도</p>
+        <p><strong>기도제목:</strong> 현지 정착과 건강</p>
+      `;
+      detailPopup.style.display = 'block';
+
+      // 지도 이동: 중앙 70% 이내로 선교사 위치 보정하여 이동
+      const bounds = map.getBounds();
+      const paddingLat = (bounds.getNorth() - bounds.getSouth()) * 0.15;
+      const paddingLng = (bounds.getEast() - bounds.getWest()) * 0.15;
+      const adjustedLat = Math.min(Math.max(latlng[0], bounds.getSouth() + paddingLat), bounds.getNorth() - paddingLat);
+      const adjustedLng = Math.min(Math.max(latlng[1], bounds.getWest() + paddingLng), bounds.getEast() - paddingLng);
+      map.panTo([adjustedLat, adjustedLng]);
+    }
+
+    // 상세 팝업 닫기 함수
+    function closeDetail() {
+      detailPopup.style.display = 'none';
+    }
+
+    // 마커 및 팝업 생성
+    const markers = Object.entries(missionaryData).map(([country, missionaries]) => {
+      const [lat, lng] = latlngs[country] || [0, 0];
+      const flag = countryFlags[country] ? `<img class='flag-icon' src='https://flagcdn.com/w40/${countryFlags[country]}.png'>` : "";
+      const popupContent = `${flag}<b>${country}</b><br>` +
+        missionaries.map(name => `<div class='popup-list' onclick='showDetail(\"${name}\", [${lat}, ${lng}])'>${name}</div>`).join("");
+      const marker = L.marker([lat, lng]).addTo(map);
+      marker.bindPopup(popupContent);
+      return marker;
+    });
+
+    // 순환 팝업 로직
+    let currentIndex = 0;
+    let pause = false;
+
+    document.addEventListener("mouseover", e => {
+      if (e.target.closest(".leaflet-popup") || e.target.closest(".popup-list")) pause = true;
+    });
+    document.addEventListener("mouseout", e => {
+      if (!e.relatedTarget || (!e.relatedTarget.closest(".leaflet-popup") && !e.relatedTarget.closest(".popup-list"))) pause = false;
+    });
+
+    // 3초마다 순차적으로 마커 팝업 표시
+    setInterval(() => {
+      if (!pause) {
+        markers.forEach(m => m.closePopup());
+        markers[currentIndex].openPopup();
+        currentIndex = (currentIndex + 1) % markers.length;
+      }
+    }, 3000);
+  </script>
 </body>
 </html>
+
