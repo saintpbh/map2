@@ -89,10 +89,11 @@ const markers = Object.entries(missionaryData).map(([country, missionaries]) => 
   marker.on('mouseover', () => {
     pause = true;
   });
+  /*
   marker.on('mouseout', () => {
-    pause = false;
+    pause = true;
   });
-
+*/
   return marker;
 });
 
@@ -102,11 +103,13 @@ let currentIndex = 0, pause = false;
 document.addEventListener("mouseover", e => {
   if (e.target.closest(".leaflet-popup") || e.target.closest(".popup-list")) pause = true;
 });
+/*
 document.addEventListener("mouseout", e => {
   if (!e.relatedTarget ||
     (!e.relatedTarget.closest(".leaflet-popup") && !e.relatedTarget.closest(".popup-list")))
     pause = false;
 });
+*/
 setInterval(() => {
   if (!pause) {
     markers.forEach(m => m.closePopup());
