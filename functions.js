@@ -42,13 +42,18 @@ const detailPopup = document.getElementById('detailPopup');
 
 // 🔹 상세 보기 함수
 function showDetail(name, latlng) {
+  // 지도 좌표를 화면 픽셀 위치로 변환
+  const point = map.latLngToContainerPoint(latlng);
+
   detailPopup.style.display = 'block';
-  detailPopup.style.left = '20px';
-  detailPopup.style.top = '20px';
+  detailPopup.style.position = 'absolute';
+  detailPopup.style.left = `${point.x + 10}px`; // 마커 오른쪽에 위치
+  detailPopup.style.top = `${point.y - 100}px`; // 마커 위쪽에 위치
+
   detailPopup.innerHTML = `
-    <div class="close-btn" onclick="closeDetail()">✖</div>
-    <img src="https://via.placeholder.com/300x180.png?text=${name}" alt="${name}">
-    <h3>${name}</h3>
+    <div class="close-btn" onclick="closeDetail()" style="text-align: right;">✖</div>
+    <img src="https://via.placeholder.com/300x180.png?text=${name}" alt="${name}" style="width: 100%; border-radius: 8px;">
+    <h3 style="margin-top: 10px;">${name}</h3>
     <p><strong>파송년도:</strong> 2020년</p>
     <p><strong>주요사역:</strong> 교육, 복음전도</p>
     <p><strong>기도제목:</strong> 현지 정착과 건강</p>
