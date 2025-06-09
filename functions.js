@@ -65,6 +65,7 @@ function closeDetail() {
 }
 
 // 🔹 국가별 마커 및 팝업 생성
+// 🔹 국가별 마커 및 팝업 생성
 const markers = Object.entries(missionaryData).map(([country, missionaries]) => {
   const [lat, lng] = latlngs[country] || [0, 0];
   const flag = countryFlags[country]
@@ -85,17 +86,24 @@ const markers = Object.entries(missionaryData).map(([country, missionaries]) => 
   const marker = L.marker([lat, lng]).addTo(map);
   marker.bindPopup(popupContent);
 
-  // 🔶 마우스 오버 시 순환 멈춤
-  marker.on('mouseover', () => {
+  // 🔶 팝업 열릴 때 순환 멈춤
+  marker.on('popupopen', () => {
     pause = true;
   });
-  /*
-  marker.on('mouseout', () => {
-    pause = true;
+
+  // 🔶 팝업 닫힐 때 순환 재개
+  marker.on('popupclose', () => {
+    pause = false;
   });
-*/
+
   return marker;
 });
+
+// 🔹 지도 클릭 시 팝업 닫힘 감지 → 순환 재개
+map.on('click', () => {
+  pause = false;
+});
+
 
 
 // 🔹 팝업 순환 기능
