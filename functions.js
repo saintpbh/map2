@@ -6,6 +6,8 @@ const FLOAT_INTERVAL = 2000;
 // 🔹 한 번에 보여줄 선교사 수 (0.5는 약 1초마다 1명씩 보여줌을 의미)
 const FLOAT_COUNT = 0.5;
 
+let autoRotateEnabled = true;
+
 // 🔹 CSS 애니메이션 스타일 동적 삽입
 const style = document.createElement('style');
 style.textContent = `
@@ -63,6 +65,7 @@ const markers = Object.entries(missionaryData).map(([country, missionaries]) => 
   const flag = countryFlags[country]
     ? `<img class='flag-icon' src='https://flagcdn.com/w40/${countryFlags[country]}.png'>`
     : "";
+
   const popupContent = `${flag}<b>${country}</b><br>` +
     missionaries.map(name => {
       const info = missionaryInfo[name];
@@ -73,10 +76,21 @@ const markers = Object.entries(missionaryData).map(([country, missionaries]) => 
       const nameStyle = isRecent ? "style='color: orange; font-weight: bold'" : "";
       return `<div class='popup-list' ${nameStyle} onclick='showDetail("${name}", [${lat}, ${lng}])'>${name}</div>`;
     }).join("");
+
   const marker = L.marker([lat, lng]).addTo(map);
   marker.bindPopup(popupContent);
+
+  // 🔶 마우스 오버 시 순환 멈춤
+  marker.on('mouseover', () => {
+    pause = true;
+  });
+  marker.on('mouseout', () => {
+    pause = false;
+  });
+
   return marker;
 });
+
 
 // 🔹 팝업 순환 기능
 let currentIndex = 0, pause = false;
